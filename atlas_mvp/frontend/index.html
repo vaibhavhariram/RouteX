@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atlas MVP - Berkeley Routing</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; }
+    #map { height: 100vh; width: 100%; }
+    .control-panel {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      background: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 200px;
+    }
+    .control-panel label { font-weight: 500; font-size: 12px; color: #555; }
+    .control-panel select { padding: 6px 8px; border-radius: 4px; border: 1px solid #ccc; }
+    .control-panel button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .btn-route { background: #2563eb; color: white; }
+    .btn-route:hover { background: #1d4ed8; }
+    .btn-clear { background: #64748b; color: white; }
+    .btn-clear:hover { background: #475569; }
+    .info-box {
+      position: absolute;
+      bottom: 20px;
+      left: 10px;
+      z-index: 1000;
+      background: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      font-size: 13px;
+      display: none;
+    }
+    .info-box.visible { display: block; }
+    .info-box p { margin: 4px 0; }
+    .hint { font-size: 11px; color: #888; margin-top: 4px; }
+    .eta-note { font-size: 10px; color: #888; margin-top: 2px; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="control-panel">
+    <label>Routing Algorithm</label>
+    <select id="algo">
+      <option value="astar">A*</option>
+      <option value="dijkstra">Dijkstra</option>
+      <option value="ch">Contraction Hierarchies</option>
+    </select>
+    <span class="hint">Berkeley-scale prototype • Classical routing baseline</span>
+    <button class="btn-route" id="routeBtn">Route</button>
+    <button class="btn-clear" id="clearBtn">Clear</button>
+    <span class="hint">Click map: 1st = Origin, 2nd = Dest</span>
+  </div>
+  <div class="info-box" id="infoBox">
+    <p><strong>Distance:</strong> <span id="dist">—</span> km</p>
+    <p><strong>ETA:</strong> <span id="eta">—</span> min <span class="eta-note" title="ETA from OSM edge speeds (baseline)">(OSM baseline)</span></p>
+    <p><strong>Nodes:</strong> <span id="nodes">—</span></p>
+    <p><strong>Compute:</strong> <span id="computeMs">—</span> ms</p>
+    <p><strong>Algorithm:</strong> <span id="algoProfile">—</span></p>
+    <p><strong>Graph:</strong> <span id="graphScale">—</span></p>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    const API = 'http://127.0.0.1:8000';
+    const map = L.map('map').setView([37.8715, -122.2730], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
+    let origin = null;
+    let dest = null;
+    let originMarker = null;
+    let destMarker = null;
+    let routeLayer = null;
+
+    const infoBox = document.getElementById('infoBox');
+    const distEl = document.getElementById('dist');
+    const etaEl = document.getElementById('eta');
+    const nodesEl = document.getElementById('nodes');
+    const computeMsEl = document.getElementById('computeMs');
+    const algoProfileEl = document.getElementById('algoProfile');
+    const graphScaleEl = document.getElementById('graphScale');
+
+    map.on('click', (e) => {
+      if (!origin) {
+        origin = [e.latlng.lat, e.latlng.lng];
+        if (originMarker) map.removeLayer(originMarker);
+        originMarker = L.marker(e.latlng, { draggable: false }).addTo(map).bindPopup('Origin');
+        return;
+      }
+      if (!dest) {
+        dest = [e.latlng.lat, e.latlng.lng];
+        if (destMarker) map.removeLayer(destMarker);
+        destMarker = L.marker(e.latlng, { draggable: false }).addTo(map).bindPopup('Destination');
+      }
+    });
+
+    document.getElementById('routeBtn').addEventListener('click', async () => {
+      if (!origin || !dest) {
+        alert('Set origin and destination by clicking the map.');
+        return;
+      }
+      const algo = document.getElementById('algo').value;
+      try {
+        const res = await fetch(`${API}/route`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            origin_lat: origin[0],
+            origin_lon: origin[1],
+            dest_lat: dest[0],
+            dest_lon: dest[1],
+            algo,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Route failed');
+
+        if (routeLayer) map.removeLayer(routeLayer);
+        const geom = data.geometry || data.geojson;
+        routeLayer = L.geoJSON(geom, {
+          style: { color: '#2563eb', weight: 4 },
+        }).addTo(map);
+
+        distEl.textContent = (data.distance_m / 1000).toFixed(2);
+        etaEl.textContent = (data.eta_sec / 60).toFixed(1);
+        nodesEl.textContent = data.n_nodes;
+        computeMsEl.textContent = data.compute_ms != null ? String(data.compute_ms) : '—';
+        algoProfileEl.textContent = data.algo || '—';
+        graphScaleEl.textContent = (data.graph_nodes != null && data.graph_edges != null)
+          ? data.graph_nodes + ' nodes / ' + data.graph_edges + ' edges' : '—';
+        infoBox.classList.add('visible');
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      origin = dest = null;
+      if (originMarker) { map.removeLayer(originMarker); originMarker = null; }
+      if (destMarker) { map.removeLayer(destMarker); destMarker = null; }
+      if (routeLayer) { map.removeLayer(routeLayer); routeLayer = null; }
+      infoBox.classList.remove('visible');
+    });
+  </script>
+</body>
+</html>
