@@ -1,72 +1,106 @@
-<h1 align="center">
-  <a href="http://atlasos.net" target="_blank"><img src="https://gcore.jsdelivr.net/gh/Atlas-OS/branding@main/banners/banner-v3.png" alt="Atlas" width="800"></a>
-</h1>
-  <p align="center">
-    <a href="https://github.com/Atlas-OS/Atlas/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/atlas-os/atlas?style=for-the-badge&logo=github&color=1A91FF"/></a>
-    <a href="https://github.com/Atlas-OS/Atlas/graphs/contributors"><img alt="Contributors" src="https://img.shields.io/github/contributors/atlas-os/atlas?style=for-the-badge&color=1A91FF" /></a>
-    <a href="https://github.com/Atlas-OS/Atlas/releases/latest"><img alt="Release" src="https://img.shields.io/github/release/atlas-os/atlas?style=for-the-badge&color=1A91FF" /></a>
-    <a href="https://github.com/Atlas-OS/.github/blob/main/profile/CODE_OF_CONDUCT.md"><img alt="Code of Conduct" src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg?style=for-the-badge&color=1A91FF" /></a>
-  </p>
-<p align="center">A transparent and lightweight modification to Windows, designed to optimize performance, privacy and usability.</p>
+# XRoute — High-Performance Road Routing Engine
 
-<p align="center">
-  <a href="https://atlasos.net" target="_blank">🌐 Website</a>
-  •
-  <a href="https://docs.atlasos.net" target="_blank">📚 Documentation</a>
-  •
-  <a href="https://discord.atlasos.net" target="_blank">☎️ Discord</a>
-  •
-  <a href="https://github.com/Atlas-OS/Atlas/discussions" target="_blank">💬 Discussions</a>
-</p>
+> A full-stack system combining C++ performance algorithms with Python/ML for accurate ETAs and route optimization.
 
-## 📚 **Important Documentation**
-- [Installation](https://docs.atlasos.net/getting-started/installation/)
-- [Install FAQ](https://docs.atlasos.net/install-faq/removed-features/)
-- [General FAQ](https://docs.atlasos.net/general-faq/atlas-and-security/)
-- [Contribution Guidelines](https://docs.atlasos.net/contributing/contribution-guidelines/)
-- [Branding](https://docs.atlasos.net/branding/)
+**Live Demo:** Open `xroute-mvp/frontend/index.html` in your browser after starting the backend.
 
-## 🤔 What is Atlas?
+---
 
-AtlasOS, or Atlas, is an open-source project that enhances Windows by conveniently applying privacy, usability, and performance optimizations, all while maintaining functionality and [customizability](https://docs.atlasos.net/getting-started/post-installation/atlas-folder/general-configuration/).
+## What's Inside
 
-## 👀 Why Atlas?
-### 🔒 Enhanced Privacy
-Atlas removes the majority of telemetry embedded within Windows and implements numerous group policies to minimize data collection. However, it cannot ensure privacy outside the scope of Windows, such as browsers and other third-party applications.
+### [`xroute-mvp/`](xroute-mvp/) — Main Project
 
-### 📈 Optimized Performance
-Atlas strikes a balance between performance and compatibility. It implements numerous meaningful changes to improve Windows performance and responsiveness without breaking essential features. Atlas will not do tweaks for a placebo effect or marginal gains, making Atlas more stable and compatible.
+A complete routing system featuring:
 
-### 🛡️ Security Features
-Most Windows modifications remove key security features most users need to maintain a secure system. On the other hand, Atlas allows users to customize their security at their own risk while informing users about each option's [pros and cons](https://docs.atlasos.net/getting-started/post-installation/atlas-folder/security/).
+- **C++ Routing Algorithms**: Dijkstra, A*, Contraction Hierarchies
+- **ML-Based ETA**: XGBoost travel time prediction
+- **FastAPI Backend**: RESTful routing service
+- **PostgreSQL Integration**: Road network storage
+- **Web Frontend**: Interactive Leaflet.js map
+- **Docker Support**: One-command setup
 
-Some optional security features are:
+**Quick start:**
+```bash
+cd xroute-mvp
+docker-compose up -d          # Start database
+python -m venv venv
+source venv/bin/activate
+pip install -r backend/requirements.txt
+uvicorn backend:app --reload
+```
 
-- Windows Defender & SmartScreen
-- Windows Update
-- Automatic updates are toggleable
-- CPU mitigations
-- User Account Control
-- Core isolation features
+Open `frontend/index.html` in your browser.
 
-### ✅ Increased Usability
-Atlas applies many modifications and default settings to make Windows easier to use. This includes removing commonly unneeded applications (which are reinstallable), configuring many aspects of the interface, disabling advertisements, and much more.
+**Full documentation:** See [`xroute-mvp/README.md`](xroute-mvp/README.md)
 
-### 🔍 Open Source and Transparent
+---
 
-Unlike custom Windows ISOs, Atlas is more straightforward to audit due to the use of [AME Wizard](https://amelabs.net). AME Wizard is controlled by Playbooks, a customizable script-esque system that can perform various tasks.
+## For Recruiters
 
-Playbooks are renamed **.zip** archives, with the password [`malte`](https://docs.amelabs.net/developers/getting-started/creation.html). As they primarily consist of plain text, Playbooks enable transparency, unlike custom Windows ISOs, which have many entry points for malicious activity. 
+This project demonstrates:
+- **Full-stack development**: From C++ systems code to web UI
+- **Performance optimization**: Algorithm design and benchmarking
+- **ML integration**: Real-world ETA prediction
+- **DevOps**: Docker, database management, CI/CD ready
+- **Software architecture**: Clean separation of concerns
 
-The few binaries in the Playbook are open source in our [`utilities` repository](https://github.com/Atlas-OS/utilities), with the [hashes listed here](https://github.com/Atlas-OS/Atlas/blob/main/src/playbook/Executables/AtlasModules/README.md).
+**To get started:**
+1. Read [`xroute-mvp/README.md`](xroute-mvp/README.md) for full context
+2. Follow the "Quick Start" section for Docker setup (2 minutes)
+3. OR "Manual Setup" to build C++ from source (15 minutes)
+4. Interact with the web frontend and API
+5. Review source code in `xroute-mvp/{backend,cpp,frontend}`
 
-Although the GUI is not open source for AME Wizard, AME Wizard's entire backend (called [TrustedUninstaller](https://github.com/Ameliorated-LLC/trusted-uninstaller-cli)) is open source under MIT, which contains each action used to run Atlas. The Atlas Playbook is open source under the [GPLv3 license](https://github.com/Atlas-OS/Atlas/blob/main/LICENSE).
+---
 
-### 🔒 Legal Compliance
-As Atlas doesn't redistribute a modified Windows ISO, it complies with the [Microsoft Windows Usage Terms](https://www.microsoft.com/content/dam/microsoft/usetm/documents/windows/11/oem-(pre-installed)/UseTerms_OEM_Windows_11_English.pdf). In addition, Atlas does not alter activation in Windows.
+## Stack at a Glance
 
-## 🎨 Brand kit
-Want to create your own Atlas wallpaper with some original creative designs? Visit our [Branding Kit on Docs](https://docs.atlasos.net/branding/) and share your creations on our [GitHub Discussions](https://github.com/Atlas-OS/Atlas/discussions/categories/community-artwork)!
+| Component | Technology |
+|-----------|-----------|
+| Routing Engine | C++ 17 + pybind11 |
+| Backend | FastAPI + Uvicorn |
+| ETA Model | XGBoost + scikit-learn |
+| Database | PostgreSQL 16 + PostGIS |
+| Frontend | Leaflet.js + Vanilla JS |
+| Build | CMake 3.18+ |
+| Deployment | Docker & Docker Compose |
 
-## 💙 Contributors
-<a href="https://github.com/Atlas-OS/Atlas/graphs/contributors" target="_blank"><img src="https://contrib.rocks/image?repo=Atlas-OS/Atlas&columns=18" alt="Avatars of all contributors"></a>
+---
+
+## Repository Structure
+
+```
+XRoute/
+├── xroute-mvp/              # Main project (see details in its README)
+│   ├── backend/             # FastAPI + routing logic
+│   ├── cpp/                 # C++ algorithms (Dijkstra, A*, CH)
+│   ├── frontend/            # Web UI
+│   ├── sql/                 # Database schema
+│   ├── CMakeLists.txt
+│   ├── docker-compose.yml
+│   └── README.md
+└── README.md                # This file
+```
+
+---
+
+## System Requirements
+
+- **Python 3.11+**
+- **CMake 3.18+** (for building C++)
+- **C++17 compiler** (clang/gcc)
+- **PostgreSQL 16** (or Docker)
+- **4+ GB RAM** for large graphs
+
+---
+
+## Quick Links
+
+- **Full README**: [`xroute-mvp/README.md`](xroute-mvp/README.md)
+- **Quick Start**: Docker or manual setup instructions
+- **API Docs**: After running backend, visit `http://localhost:8000/docs`
+- **Contact**: vaibhavhariram@berkeley.edu
+
+---
+
+Start with [`xroute-mvp/README.md`](xroute-mvp/README.md) — it has everything you need!
